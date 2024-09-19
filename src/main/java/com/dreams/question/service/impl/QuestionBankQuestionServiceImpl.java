@@ -23,6 +23,7 @@ import com.dreams.question.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -48,6 +49,7 @@ public class QuestionBankQuestionServiceImpl extends ServiceImpl<QuestionBankQue
     private QuestionBankService questionBankService;
 
     @Resource
+    @Lazy
     private QuestionService questionService;
     /**
      * 校验数据
