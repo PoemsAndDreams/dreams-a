@@ -10,10 +10,7 @@ import com.dreams.question.common.ResultUtils;
 import com.dreams.question.constant.UserConstant;
 import com.dreams.question.exception.BusinessException;
 import com.dreams.question.exception.ThrowUtils;
-import com.dreams.question.model.dto.question.QuestionAddRequest;
-import com.dreams.question.model.dto.question.QuestionEditRequest;
-import com.dreams.question.model.dto.question.QuestionQueryRequest;
-import com.dreams.question.model.dto.question.QuestionUpdateRequest;
+import com.dreams.question.model.dto.question.*;
 import com.dreams.question.model.entity.Question;
 import com.dreams.question.model.entity.User;
 import com.dreams.question.model.vo.QuestionVO;
@@ -265,8 +262,14 @@ public class QuestionController {
     }
 
 
-
-    // endregion
+    @PostMapping("/delete/batch")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> batchDeleteQuestions(@RequestBody QuestionBatchDeleteRequest questionBatchDeleteRequest,
+                                                      HttpServletRequest request) {
+        ThrowUtils.throwIf(questionBatchDeleteRequest == null, ErrorCode.PARAMS_ERROR);
+        questionService.batchDeleteQuestions(questionBatchDeleteRequest.getQuestionIdList());
+        return ResultUtils.success(true);
+    }
 
 
 
