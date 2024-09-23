@@ -7,6 +7,7 @@ import com.dreams.question.model.dto.questionBankQuestion.QuestionBankQuestionQu
 import com.dreams.question.model.entity.QuestionBankQuestion;
 import com.dreams.question.model.entity.User;
 import com.dreams.question.model.vo.QuestionBankQuestionVO;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -60,6 +61,9 @@ public interface QuestionBankQuestionService extends IService<QuestionBankQuesti
      */
     void batchAddQuestionsToBank(List<Long> questionIdList, Long questionBankId, User loginUser);
 
+
+    @Transactional(rollbackFor = Exception.class)
+    void batchAddQuestionsToBankInner(List<QuestionBankQuestion> questionBankQuestions);
 
     /**
      * 批量从题库删除题目
