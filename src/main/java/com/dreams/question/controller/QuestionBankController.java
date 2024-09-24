@@ -21,6 +21,7 @@ import com.dreams.question.model.vo.QuestionBankVO;
 import com.dreams.question.service.QuestionBankService;
 import com.dreams.question.service.QuestionService;
 import com.dreams.question.service.UserService;
+import com.jd.platform.hotkey.client.callback.JdHotKeyStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -129,6 +130,39 @@ public class QuestionBankController {
         return ResultUtils.success(true);
     }
 
+//    /**
+//     * 根据 id 获取题库（封装类）
+//     *
+//     * @param questionBankQueryRequest
+//     * @return
+//     */
+//    @GetMapping("/get/vo")
+//    public BaseResponse<QuestionBankVO> getQuestionBankVOById(QuestionBankQueryRequest questionBankQueryRequest, HttpServletRequest request) {
+//        ThrowUtils.throwIf(questionBankQueryRequest == null, ErrorCode.PARAMS_ERROR);
+//        Long id = questionBankQueryRequest.getId();
+//        ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+//        // 查询数据库
+//        QuestionBank questionBank = questionBankService.getById(id);
+//        ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR);
+//        // 查询题库封装类
+//        QuestionBankVO questionBankVO = questionBankService.getQuestionBankVO(questionBank, request);
+//        // 是否要关联查询题库下的题目列表
+//        boolean needQueryQuestionList = questionBankQueryRequest.isNeedQueryQuestionList();
+//        if (needQueryQuestionList) {
+//            QuestionQueryRequest questionQueryRequest = new QuestionQueryRequest();
+//            questionQueryRequest.setQuestionBankId(id);
+//            // 可以按需传递更多参数
+//            questionQueryRequest.setPageSize(questionBankQueryRequest.getPageSize());
+//            questionQueryRequest.setCurrent(questionBankQueryRequest.getCurrent());
+//            // 封装 question => questionVO
+//            Page<Question> questionPage = questionService.listQuestionByPage(questionQueryRequest);
+//            questionBankVO.setQuestionPage(questionService.getQuestionVOPage(questionPage, request));
+//        }
+//        // 获取封装类
+//        return ResultUtils.success(questionBankVO);
+//    }
+
+
     /**
      * 根据 id 获取题库（封装类）
      *
@@ -140,6 +174,20 @@ public class QuestionBankController {
         ThrowUtils.throwIf(questionBankQueryRequest == null, ErrorCode.PARAMS_ERROR);
         Long id = questionBankQueryRequest.getId();
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
+
+        // 生成 key
+        String key = "bank_detail_" + id;
+        // 如果是热 key
+        if (JdHotKeyStore.isHotKey(key)) {
+            // 从本地缓存中获取缓存值
+            Object cachedQuestionBankVO = JdHotKeyStore.get(key);
+            if (cachedQuestionBankVO != null) {
+                // 如果缓存中有值，直接返回缓存的值
+                return ResultUtils.success((QuestionBankVO) cachedQuestionBankVO);
+            }
+        }
+
+        // 原本查询数据的逻辑（查数据库）
         // 查询数据库
         QuestionBank questionBank = questionBankService.getById(id);
         ThrowUtils.throwIf(questionBank == null, ErrorCode.NOT_FOUND_ERROR);
@@ -157,9 +205,17 @@ public class QuestionBankController {
             Page<Question> questionPage = questionService.listQuestionByPage(questionQueryRequest);
             questionBankVO.setQuestionPage(questionService.getQuestionVOPage(questionPage, request));
         }
+
+
+        // 设置本地缓存
+        JdHotKeyStore.smartSet(key, questionBankVO);
+
         // 获取封装类
         return ResultUtils.success(questionBankVO);
     }
+
+
+
 
 
 
