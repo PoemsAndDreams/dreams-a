@@ -1,0 +1,12 @@
+[
+  {
+    "count": 0.1,
+    "grade": 1,
+    "limitApp": "default",
+    "minRequestAmount": 5,
+    "resource": "listQuestionVOByPage",
+    "slowRatioThreshold": 1.0,
+    "statIntervalMs": 10000,
+    "timeWindow": 60
+  }
+]

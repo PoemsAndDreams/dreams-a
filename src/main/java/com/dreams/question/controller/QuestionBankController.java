@@ -1,5 +1,6 @@
 package com.dreams.question.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dreams.question.annotation.AuthCheck;
 import com.dreams.question.common.BaseResponse;
@@ -18,6 +19,8 @@ import com.dreams.question.model.entity.Question;
 import com.dreams.question.model.entity.QuestionBank;
 import com.dreams.question.model.entity.User;
 import com.dreams.question.model.vo.QuestionBankVO;
+import com.dreams.question.sentinel.blockHandler.QuestionBankBlockHandler;
+import com.dreams.question.sentinel.fallback.QuestionBankFallback;
 import com.dreams.question.service.QuestionBankService;
 import com.dreams.question.service.QuestionService;
 import com.dreams.question.service.UserService;
@@ -31,7 +34,6 @@ import javax.servlet.http.HttpServletRequest;
 
 /**
  * 题库接口
- *
  */
 @RestController
 @RequestMapping("/questionBank")
@@ -215,10 +217,6 @@ public class QuestionBankController {
     }
 
 
-
-
-
-
     /**
      * 分页获取题库列表（仅管理员可用）
      *
@@ -244,8 +242,15 @@ public class QuestionBankController {
      * @return
      */
     @PostMapping("/list/page/vo")
-    public BaseResponse<Page<QuestionBankVO>> listQuestionBankVOByPage(@RequestBody QuestionBankQueryRequest questionBankQueryRequest,
-                                                               HttpServletRequest request) {
+    @SentinelResource(value = "listQuestionBankVOByPage",
+            blockHandler = "handleBlockException",
+            blockHandlerClass = {QuestionBankBlockHandler.class},
+            fallback = "handleFallback",
+            fallbackClass = {QuestionBankFallback.class})
+    public BaseResponse<Page<QuestionBankVO>> listQuestionBankVOByPage(
+            @RequestBody QuestionBankQueryRequest questionBankQueryRequest,
+            HttpServletRequest request) {
+
         long current = questionBankQueryRequest.getCurrent();
         long size = questionBankQueryRequest.getPageSize();
         // 限制爬虫
@@ -266,7 +271,7 @@ public class QuestionBankController {
      */
     @PostMapping("/my/list/page/vo")
     public BaseResponse<Page<QuestionBankVO>> listMyQuestionBankVOByPage(@RequestBody QuestionBankQueryRequest questionBankQueryRequest,
-                                                                 HttpServletRequest request) {
+                                                                         HttpServletRequest request) {
         ThrowUtils.throwIf(questionBankQueryRequest == null, ErrorCode.PARAMS_ERROR);
         // 补充查询条件，只查询当前登录用户的数据
         User loginUser = userService.getLoginUser(request);
