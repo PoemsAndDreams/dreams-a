@@ -1,7 +1,6 @@
 package com.dreams.question.sentinel;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.lang.TypeReference;
 import com.alibaba.csp.sentinel.datasource.*;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRule;
 import com.alibaba.csp.sentinel.slots.block.degrade.DegradeRuleManager;
@@ -12,6 +11,7 @@ import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRule;
 import com.alibaba.csp.sentinel.slots.block.flow.param.ParamFlowRuleManager;
 import com.alibaba.csp.sentinel.transport.util.WritableDataSourceRegistry;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
